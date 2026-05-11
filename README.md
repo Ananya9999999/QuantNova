@@ -72,7 +72,7 @@ Current UI screenshots are documented in `docs/FRONTEND.md` and stored under `do
 - `docs/screenshots/ohlcv-candlestick-signals.png`
 - `docs/screenshots/backtest-history.png`
 
-![QuantNova terminal dashboard](docs\screenshots\screenshot2_api_connected.png)
+![QuantNova terminal dashboard](docs/screenshots/screenshot2_api_connected.png)
 
 ![QuantNova OHLCV candlestick chart with signals](docs/screenshots/ohlcv-candlestick-signals.png)
 
