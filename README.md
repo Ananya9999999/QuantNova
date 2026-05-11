@@ -1,5 +1,6 @@
 # QuantNova
 
+[![Live Website](https://img.shields.io/badge/Live%20Website-QuantNova-blue?style=for-the-badge)](https://www.quantnova.in)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
@@ -9,6 +10,10 @@
 [![Lightweight Charts](https://img.shields.io/badge/Lightweight%20Charts-5-2962FF)](https://tradingview.github.io/lightweight-charts/)
 [![Tests](https://img.shields.io/badge/tests-passing-16a34a)](#testing)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+Live website link (https:://www.quantnova.in)
+
+Press Ctrl + K + V to preview readme file on VS Code (windows).
 
 QuantNova is an open-source GUI-based quantitative backtesting foundation for OHLCV market data, technical indicators, simple strategies, and beginner-friendly contribution.
 
@@ -67,7 +72,7 @@ Current UI screenshots are documented in `docs/FRONTEND.md` and stored under `do
 - `docs/screenshots/ohlcv-candlestick-signals.png`
 - `docs/screenshots/backtest-history.png`
 
-![QuantNova terminal dashboard](docs/screenshots/terminal-dashboard.png)
+![QuantNova terminal dashboard](docs\screenshots\screenshot2_api_connected.png)
 
 ![QuantNova OHLCV candlestick chart with signals](docs/screenshots/ohlcv-candlestick-signals.png)
 
@@ -199,7 +204,7 @@ bash scripts/setup-labels.sh
 
 Without GitHub CLI, create the labels manually in the GitHub repository settings using `.github/labels.yml` as the source of truth.
 
-## Known Limitations
+## Known Limitations as of now
 
 - No live trading or brokerage execution.
 - No authentication or user accounts.
@@ -224,10 +229,13 @@ docs/       Contributor docs, good first issues, and screenshots
 - Add persisted backtest history when a database is introduced.
 - Add demo GIFs and refresh screenshots as the UI evolves.
 - Improve accessibility and keyboard navigation.
+- Maybe create blog where users can share their strategies.
+- take inspiration from takeprofit.com, croid.app, quantConnect, tradingview, Ai-trader GitHub repo
+- add user authentication with login id password credentials. allow user to save strategies and backtest results.
 
-## Contact
+<!--## Contact
 
-Maintainer contact channel: add a GitHub Discussions link or community chat link before public program onboarding.
+Maintainer contact channel: add a GitHub Discussions link or community chat link before public program onboarding.-->
 
 ## License
 
