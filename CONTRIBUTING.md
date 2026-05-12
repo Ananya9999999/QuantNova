@@ -2,6 +2,43 @@
 
 Thanks for helping improve QuantNova. This project is designed to be beginner-friendly while keeping code quality high.
 
+## How to Contribute
+
+1. Pick a small issue from the issue tracker, preferably one labeled `good first issue` if you are new to the project.
+2. Comment on the issue if you need clarification or want to confirm your approach.
+3. Fork the repository and create a focused branch.
+4. Make the smallest useful change that solves the issue.
+5. Run the checks listed in this guide.
+6. Open a pull request and link the issue it closes.
+
+Good contributions include code, tests, documentation, screenshots, reproduction steps, and issue triage. You do not need to solve a large feature to contribute.
+
+## Issue Labels
+
+QuantNova uses labels to help contributors quickly find the right work:
+
+- `good first issue`: small, well-scoped tasks suitable for new contributors.
+- `bug`: something is broken or behaving unexpectedly.
+- `feature`: new functionality or user-facing improvements.
+- `documentation`: README, guides, examples, screenshots, or developer docs.
+- `frontend`: React, Vite, TypeScript, styling, or browser UI work.
+- `backend`: FastAPI, Python services, validation, indicators, or tests.
+- `help wanted`: maintainers would especially welcome external help.
+
+If an issue has multiple labels, use all of them to understand the expected scope. For example, `good first issue` plus `frontend` usually means a small UI change, while `documentation` plus `help wanted` usually means docs can be improved without touching app logic.
+
+## Beginner-Friendly Tasks
+
+Good first contributions are usually:
+
+- Documentation fixes or clearer examples.
+- Small frontend UI polish with screenshots.
+- Additional tests for existing indicator or backtest behavior.
+- Validation and error-message improvements.
+- Small accessibility improvements.
+
+Avoid large rewrites, new infrastructure, authentication, database work, brokerage integrations, live trading, or unrelated generated files unless a maintainer has explicitly approved the scope.
+
 ## Pull Request Format
 
 Use the pull request template and include:
