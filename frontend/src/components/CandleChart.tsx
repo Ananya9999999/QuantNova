@@ -99,6 +99,8 @@ export function CandleChart({
     candlesRef.current = candles;
   }, [candles]);
 
+  const getResponsiveChartHeight = (width: number) => Math.max(320, Math.min(540, Math.round(width * 0.65)));
+
   useEffect(() => {
     if (!chartContainerRef.current) return;
     const chart = createChart(chartContainerRef.current, {
@@ -112,7 +114,7 @@ export function CandleChart({
         horzLines: { color: 'rgba(148, 163, 184, 0.16)', style: LineStyle.Dashed },
       },
       width: chartContainerRef.current.clientWidth,
-      height: 540,
+      height: getResponsiveChartHeight(chartContainerRef.current.clientWidth),
       crosshair: {
         mode: 0,
         vertLine: { color: 'rgba(165, 180, 204, 0.42)', style: LineStyle.Dashed },
@@ -182,7 +184,9 @@ export function CandleChart({
 
     const resizeObserver = new ResizeObserver(() => {
       if (!chartContainerRef.current) return;
-      chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      const width = chartContainerRef.current.clientWidth;
+      const height = getResponsiveChartHeight(width);
+      chart.applyOptions({ width, height });
     });
     resizeObserver.observe(chartContainerRef.current);
 
@@ -322,9 +326,10 @@ function buildSignalMarkers(signals: BacktestSignal[]): SeriesMarker<Time>[] {
     return {
       time: toChartTime(signal.time || signal.timestamp || ''),
       position: isBuy ? 'belowBar' : 'aboveBar',
-      color: isBuy ? '#16c784' : '#ea3943',
+      color: isBuy ? '#22e19d' : '#ff6b6b',
       shape: isBuy ? 'arrowUp' : 'arrowDown',
       text: isBuy ? 'BUY' : 'SELL',
+      size: 3,
     };
   });
 }
