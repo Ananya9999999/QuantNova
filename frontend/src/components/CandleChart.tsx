@@ -46,6 +46,17 @@ interface HoverCandle {
   volume: number;
 }
 
+const CANDLE_STYLE = {
+  upColor: '#16c784',
+  downColor: '#ea3943',
+  borderUpColor: '#16c784',
+  borderDownColor: '#ea3943',
+  wickUpColor: 'rgba(22, 199, 132, 0.9)',
+  wickDownColor: 'rgba(234, 57, 67, 0.9)',
+  borderVisible: true,
+  wickVisible: true,
+} as const;
+
 export function CandleChart({
   candles,
   shortSma,
@@ -137,19 +148,14 @@ export function CandleChart({
       },
     });
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#16c784',
-      downColor: '#ea3943',
-      borderUpColor: '#16c784',
-      borderDownColor: '#ea3943',
-      wickUpColor: 'rgba(22, 199, 132, 0.9)',
-      wickDownColor: 'rgba(234, 57, 67, 0.9)',
+      ...CANDLE_STYLE,
       priceLineColor: 'rgba(22, 199, 132, 0.7)',
       priceLineStyle: LineStyle.Dashed,
       priceLineWidth: 1,
     });
     const barSeries = chart.addSeries(BarSeries, {
-      upColor: '#16c784',
-      downColor: '#ea3943',
+      upColor: CANDLE_STYLE.upColor,
+      downColor: CANDLE_STYLE.downColor,
       openVisible: true,
       thinBars: false,
       priceLineColor: 'rgba(22, 199, 132, 0.7)',
@@ -187,6 +193,11 @@ export function CandleChart({
       const width = chartContainerRef.current.clientWidth;
       const height = getResponsiveChartHeight(width);
       chart.applyOptions({ width, height });
+      candleSeries.applyOptions(CANDLE_STYLE);
+      barSeries.applyOptions({
+        upColor: CANDLE_STYLE.upColor,
+        downColor: CANDLE_STYLE.downColor,
+      });
     });
     resizeObserver.observe(chartContainerRef.current);
 
@@ -217,6 +228,11 @@ export function CandleChart({
     candleSeriesRef.current.setData(ohlcData);
     barSeriesRef.current.setData(ohlcData);
     volumeSeriesRef.current.setData(volumeData);
+    candleSeriesRef.current.applyOptions(CANDLE_STYLE);
+    barSeriesRef.current.applyOptions({
+      upColor: CANDLE_STYLE.upColor,
+      downColor: CANDLE_STYLE.downColor,
+    });
     shortSeriesRef.current.setData(buildLineData(candles, shortSma));
     longSeriesRef.current.setData(buildLineData(candles, longSma));
     chartRef.current?.timeScale().fitContent();
@@ -329,7 +345,7 @@ function buildSignalMarkers(signals: BacktestSignal[]): SeriesMarker<Time>[] {
       color: isBuy ? '#22e19d' : '#ff6b6b',
       shape: isBuy ? 'arrowUp' : 'arrowDown',
       text: isBuy ? 'BUY' : 'SELL',
-      size: 3,
+      size: 4,
     };
   });
 }
