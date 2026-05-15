@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   calculateIndicators,
   fetchBinanceKlines,
@@ -19,7 +19,7 @@ import {
   calculateSma,
 } from './indicators';
 import { ApiBacktestResponse, BacktestResult, Candle, NullableNumber, Trade } from './utils/types';
-
+import { createBinanceWebSocket } from './api/binanceWebSocket';
 type Section = 'Terminal' | 'Strategies' | 'Portfolio' | 'Backtests' | 'History' | 'Monitor';
 type ApiStatus = 'checking' | 'connected' | 'fallback';
 
@@ -83,6 +83,9 @@ function App() {
   } | null>(null);
   const [apiBacktest, setApiBacktest] = useState<ApiBacktestResponse | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>(() => readHistory());
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wsManagerRef = useRef(createBinanceWebSocket());
+  const [livePrice, setLivePrice] = useState<number | null>(null);
 
   const filteredCandles = useMemo(
     () => filterCandlesByDateRange(candles, backtestStartDate, backtestEndDate),
@@ -141,6 +144,53 @@ function App() {
     refreshIndicators();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredCandles, shortWindow, longWindow]);
+
+  useEffect(() => {
+    const { startDate, endDate } = getRecentDateRange(7);
+    setBinanceStartDate(startDate);
+    setBinanceEndDate(endDate);
+
+    async function autoFetch() {
+      setIsLoadingSample(true);
+      try {
+        const nextCandles = await fetchBinanceKlines({
+          symbol: binanceSymbol,
+          interval: binanceInterval,
+          startDate,
+          endDate,
+        });
+        setCandles(nextCandles);
+        setDataSource(`Live Binance ${binanceSymbol} ${binanceInterval}`);
+        setApiBacktest(null);
+        setApiIndicators(null);
+        setApiStatus('connected');
+        setStatusMessage(`Loaded ${nextCandles.length} candles for ${binanceSymbol}.`);
+      } catch {
+        setStatusMessage(`Failed to fetch ${binanceSymbol}. Using cached data.`);
+      } finally {
+        setIsLoadingSample(false);
+      }
+    }
+
+    void autoFetch();
+
+    // Clear old polling interval and start a new one (every 30s)
+    if (pollingRef.current) clearInterval(pollingRef.current);
+    pollingRef.current = setInterval(() => { void autoFetch(); }, 30_000);
+
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, [binanceSymbol, binanceInterval]);
+
+  useEffect(() => {
+    wsManagerRef.current.connect(binanceSymbol, (price) => {
+      setLivePrice(price);
+    });
+    return () => {
+      wsManagerRef.current.disconnect();
+    };
+  }, [binanceSymbol]);
 
   async function checkHealth() {
     try {
@@ -424,29 +474,26 @@ function App() {
           <div className="market-controls">
             <div className="market-ticker">
               <span>Last</span>
-              <strong>{formatMoney(latestCandle?.close ?? 0)}</strong>
+              <strong>{formatMoney(livePrice ?? latestCandle?.close ?? 0)}</strong>
+              {livePrice ? <span className="live-dot" title="Live price feed active" /> : null}
             </div>
             <select
               aria-label="Asset selector"
-              value="BTCUSDT"
-              disabled
-              title="BTCUSDT is the only bundled sample asset in this foundation MVP."
-              onChange={() => undefined}
+              value={binanceSymbol}
+              onChange={(e) => {
+                setBinanceSymbol(e.target.value);
+              }}
             >
-              <option>BTCUSDT</option>
+              {['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT'].map((pair) => (
+                <option key={pair} value={pair}>{pair}</option>
+              ))}
             </select>
             <div className="timeframe-group" aria-label="Timeframe selector">
               {['1m', '5m', '15m', '1h'].map((item) => (
                 <button
-                  className={timeframe === item ? 'timeframe active' : 'timeframe'}
+                  className={binanceInterval === item ? 'timeframe active' : 'timeframe'}
                   key={item}
-                  disabled={timeframe !== item}
-                  onClick={() => setStatusMessage('15m sample timeframe is already selected.')}
-                  title={
-                    timeframe === item
-                      ? 'Current sample timeframe. Click confirms the active sample timeframe.'
-                      : 'Coming soon: timeframe resampling is not implemented yet.'
-                  }
+                  onClick={() => setBinanceInterval(item)}
                 >
                   {item}
                 </button>
@@ -518,7 +565,7 @@ function App() {
           <section className="chart-panel terminal-panel">
             <PanelHeading
               eyebrow="Terminal"
-              title="BTCUSDT strategy workspace"
+              title={`${binanceSymbol} strategy workspace`}
               status={apiStatus === 'connected' ? 'API connected' : 'Local fallback'}
             />
             <div className="chart-statline">
@@ -567,6 +614,9 @@ function App() {
               showVolume={showVolume}
               chartAction={chartAction}
               onChartActionHandled={() => setChartAction(null)}
+              selectedSymbol={binanceSymbol}
+              selectedInterval={binanceInterval}
+              onIntervalChange={(interval) => setBinanceInterval(interval)}
             />
           </section>
           <aside className="right-rail">
