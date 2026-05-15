@@ -50,6 +50,36 @@ Use the pull request template and include:
 
 Keep pull requests small and focused. A good pull request should solve one clear issue.
 
+## Finding Beginner-Friendly Tasks
+
+Start with issues labeled `good first issue`. These tasks should have a small scope, clear acceptance criteria, and a limited set of files to edit.
+
+Before starting:
+
+- Read the full issue description.
+- Check whether someone is already assigned or has an open pull request.
+- Ask a short question on the issue if the scope is unclear.
+- Prefer one focused fix over several unrelated changes.
+
+Useful starter areas include:
+
+- Documentation examples in `README.md`, `backend/README.md`, or `docs/`.
+- Small frontend UI polish in `frontend/src`.
+- Focused backend tests in `backend/tests`.
+- Issue templates, labels, and contributor workflow improvements.
+
+## Issue Labels
+
+Labels help contributors understand the type and scope of an issue:
+
+- `good first issue`: beginner-friendly task with a small, clear scope.
+- `bug`: something is broken or behaving unexpectedly.
+- `feature`: a new feature or enhancement request.
+- `help wanted`: maintainers welcome community help.
+- `documentation`: documentation updates or improvements.
+
+If an issue has no clear label, use the title and description to decide whether it matches your experience level before opening a pull request.
+
 ## Commit Message Convention
 
 Use short, descriptive commit messages:
