@@ -797,7 +797,9 @@ function App() {
           <Metric
             label="Sharpe ratio"
             value={formatCompact(
-              apiBacktest?.stats?.sharpe_ratio ?? apiBacktest?.summary.sharpe_ratio ?? 0,
+              apiBacktest?.stats?.sharpe_ratio ??
+                apiBacktest?.summary.sharpe_ratio ??
+                backtest.sharpeRatio,
             )}
             tone="muted-strong"
           />
@@ -1009,6 +1011,7 @@ function fromApiBacktest(response: ApiBacktestResponse): BacktestResult {
     netProfit: response.summary.net_profit,
     winRate: response.summary.win_rate,
     maxDrawdown: response.summary.max_drawdown,
+    sharpeRatio: response.stats?.sharpe_ratio ?? response.summary.sharpe_ratio ?? 0,
     finalEquity: response.summary.final_equity,
     trades: response.trades.map((trade) => ({
       entryDate: trade.entry_time,
@@ -1114,6 +1117,7 @@ function emptyBacktest(): BacktestResult {
     netProfit: 0,
     winRate: 0,
     maxDrawdown: 0,
+    sharpeRatio: 0,
     finalEquity: 0,
     trades: [],
     equityCurve: [],
