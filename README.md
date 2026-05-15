@@ -11,7 +11,9 @@
 [![Tests](https://img.shields.io/badge/tests-passing-16a34a)](#testing)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Live website link (https:://www.quantnova.in)
+## Live Website
+
+[Visit QuantNova](https://www.quantnova.in)
 
 Press Ctrl + K + V to preview readme file on VS Code (windows).
 
@@ -78,6 +80,15 @@ Current UI screenshots are documented in `docs/FRONTEND.md` and stored under `do
 
 ![QuantNova backtest history](docs/screenshots/backtest-history.png)
 
+
+## Quick Start
+
+## Clone the Repository
+
+```bash
+git clone https://github.com/your-username/QuantNova.git
+cd QuantNova
+```
 ## Frontend Setup
 
 Prerequisites:
@@ -185,6 +196,44 @@ timestamp,open,high,low,close,volume
 5. Open a pull request using the pull request template.
 
 Beginner-friendly tasks are listed in `docs/GOOD_FIRST_ISSUES.md`.
+
+## Contribution Workflow
+
+1. Fork the repository
+
+2. Clone your fork locally
+```bash
+git clone https://github.com/your-username/QuantNova.git
+cd QuantNova
+```
+
+3.Create a new branch
+git checkout -b feature/your-feature-name
+
+4.Make your changes and test them
+
+Frontend checks:
+cd frontend
+npm run lint
+npm test
+npm run build
+
+Backend checks:
+cd backend
+ruff check .
+pytest
+
+5.Commit your changes
+git add .
+git commit -m "Add meaningful commit message"
+
+6.Push your branch
+git push origin feature/your-feature-name
+
+7.Open a Pull Request
+Describe the changes clearly
+Link the related issue using:
+Fixes #issue-number
 
 ## Repository Labels
 
