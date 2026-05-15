@@ -20,6 +20,13 @@ Describe the small contribution clearly.
 -
 -
 
+## Estimated Effort
+
+Choose one:
+- 🟢 **Beginner** (~30 mins – 1 hour)
+- 🟡 **Intermediate** (~1 – 3 hours)
+- 🔴 **Advanced** (3+ hours)
+
 ## Notes for Contributors
 
 Add hints or links that would help a beginner complete this task.
