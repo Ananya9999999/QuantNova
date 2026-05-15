@@ -46,6 +46,17 @@ interface HoverCandle {
   volume: number;
 }
 
+const CANDLE_STYLE = {
+  upColor: '#16c784',
+  downColor: '#ea3943',
+  borderUpColor: '#16c784',
+  borderDownColor: '#ea3943',
+  wickUpColor: 'rgba(22, 199, 132, 0.9)',
+  wickDownColor: 'rgba(234, 57, 67, 0.9)',
+  borderVisible: true,
+  wickVisible: true,
+} as const;
+
 export function CandleChart({
   candles,
   shortSma,
@@ -99,6 +110,8 @@ export function CandleChart({
     candlesRef.current = candles;
   }, [candles]);
 
+  const getResponsiveChartHeight = (width: number) => Math.max(320, Math.min(540, Math.round(width * 0.65)));
+
   useEffect(() => {
     if (!chartContainerRef.current) return;
     const chart = createChart(chartContainerRef.current, {
@@ -112,7 +125,7 @@ export function CandleChart({
         horzLines: { color: 'rgba(148, 163, 184, 0.16)', style: LineStyle.Dashed },
       },
       width: chartContainerRef.current.clientWidth,
-      height: 540,
+      height: getResponsiveChartHeight(chartContainerRef.current.clientWidth),
       crosshair: {
         mode: 0,
         vertLine: { color: 'rgba(165, 180, 204, 0.42)', style: LineStyle.Dashed },
@@ -135,19 +148,14 @@ export function CandleChart({
       },
     });
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#16c784',
-      downColor: '#ea3943',
-      borderUpColor: '#16c784',
-      borderDownColor: '#ea3943',
-      wickUpColor: 'rgba(22, 199, 132, 0.9)',
-      wickDownColor: 'rgba(234, 57, 67, 0.9)',
+      ...CANDLE_STYLE,
       priceLineColor: 'rgba(22, 199, 132, 0.7)',
       priceLineStyle: LineStyle.Dashed,
       priceLineWidth: 1,
     });
     const barSeries = chart.addSeries(BarSeries, {
-      upColor: '#16c784',
-      downColor: '#ea3943',
+      upColor: CANDLE_STYLE.upColor,
+      downColor: CANDLE_STYLE.downColor,
       openVisible: true,
       thinBars: false,
       priceLineColor: 'rgba(22, 199, 132, 0.7)',
@@ -182,7 +190,14 @@ export function CandleChart({
 
     const resizeObserver = new ResizeObserver(() => {
       if (!chartContainerRef.current) return;
-      chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      const width = chartContainerRef.current.clientWidth;
+      const height = getResponsiveChartHeight(width);
+      chart.applyOptions({ width, height });
+      candleSeries.applyOptions(CANDLE_STYLE);
+      barSeries.applyOptions({
+        upColor: CANDLE_STYLE.upColor,
+        downColor: CANDLE_STYLE.downColor,
+      });
     });
     resizeObserver.observe(chartContainerRef.current);
 
@@ -213,6 +228,11 @@ export function CandleChart({
     candleSeriesRef.current.setData(ohlcData);
     barSeriesRef.current.setData(ohlcData);
     volumeSeriesRef.current.setData(volumeData);
+    candleSeriesRef.current.applyOptions(CANDLE_STYLE);
+    barSeriesRef.current.applyOptions({
+      upColor: CANDLE_STYLE.upColor,
+      downColor: CANDLE_STYLE.downColor,
+    });
     shortSeriesRef.current.setData(buildLineData(candles, shortSma));
     longSeriesRef.current.setData(buildLineData(candles, longSma));
     chartRef.current?.timeScale().fitContent();
@@ -322,9 +342,10 @@ function buildSignalMarkers(signals: BacktestSignal[]): SeriesMarker<Time>[] {
     return {
       time: toChartTime(signal.time || signal.timestamp || ''),
       position: isBuy ? 'belowBar' : 'aboveBar',
-      color: isBuy ? '#16c784' : '#ea3943',
+      color: isBuy ? '#22e19d' : '#ff6b6b',
       shape: isBuy ? 'arrowUp' : 'arrowDown',
       text: isBuy ? 'BUY' : 'SELL',
+      size: 4,
     };
   });
 }
