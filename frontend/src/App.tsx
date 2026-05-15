@@ -176,7 +176,9 @@ function App() {
 
     // Clear old polling interval and start a new one (every 30s)
     if (pollingRef.current) clearInterval(pollingRef.current);
-    pollingRef.current = setInterval(() => { void autoFetch(); }, 30_000);
+    pollingRef.current = setInterval(() => {
+      void autoFetch();
+    }, 30_000);
 
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
@@ -184,11 +186,12 @@ function App() {
   }, [binanceSymbol, binanceInterval]);
 
   useEffect(() => {
-    wsManagerRef.current.connect(binanceSymbol, (price) => {
+    const wsManager = wsManagerRef.current;
+    wsManager.connect(binanceSymbol, (price) => {
       setLivePrice(price);
     });
     return () => {
-      wsManagerRef.current.disconnect();
+      wsManager.disconnect();
     };
   }, [binanceSymbol]);
 
@@ -485,7 +488,9 @@ function App() {
               }}
             >
               {['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT'].map((pair) => (
-                <option key={pair} value={pair}>{pair}</option>
+                <option key={pair} value={pair}>
+                  {pair}
+                </option>
               ))}
             </select>
             <div className="timeframe-group" aria-label="Timeframe selector">
