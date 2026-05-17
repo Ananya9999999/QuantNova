@@ -8,9 +8,34 @@
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Binance API](https://img.shields.io/badge/Binance%20API-Klines-F0B90B?logo=binance&logoColor=111827)](https://developers.binance.com/)
 [![Lightweight Charts](https://img.shields.io/badge/Lightweight%20Charts-5-2962FF)](https://tradingview.github.io/lightweight-charts/)
-[![Tests](https://img.shields.io/badge/tests-passing-16a34a)](#testing)
+[![Tests](https://img.shields.io/badge/tests-passing-16a34a)](#testing-and-checks)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+---
+
+## Table of Contents
+
+- [Live Website](#live-website)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Screenshots](#screenshots)
+- [Quick Start](#quick-start)
+- [Frontend Setup](#frontend-setup)
+- [Backend Setup](#backend-setup)
+- [API Endpoints](#api-endpoints)
+- [Testing and Checks](#testing-and-checks)
+- [CSV Format](#csv-format)
+- [How to Contribute](#how-to-contribute)
+- [Beginner Contribution Flow](#beginner-contribution-flow)
+- [Contribution Workflow](#contribution-workflow)
+- [Repository Labels](#repository-labels)
+- [Known Limitations as of now](#known-limitations-as-of-now)
+- [Architecture Workflow](#architecture-workflow)
+- [Repository Structure](#repository-structure)
+- [Roadmap](#roadmap)
+- [License](#license)
+
+---
 ## Live Website
 
 [Visit QuantNova](https://www.quantnova.in)
@@ -20,7 +45,9 @@ Press Ctrl + K + V to preview readme file on VS Code (windows).
 QuantNova is an open-source GUI-based quantitative backtesting foundation for OHLCV market data, technical indicators, simple strategies, and beginner-friendly contribution.
 
 This repository is intentionally scoped as an initial MVP for contributors. Does not include authentication, databases, brokerage integrations, payments, AI agents, or live trading execution.
+...
 
+---
 ## Features
 
 - Dark React + Vite + TypeScript trading-terminal frontend
@@ -40,7 +67,9 @@ This repository is intentionally scoped as an initial MVP for contributors. Does
 - Frontend and backend tests
 - GitHub Actions CI for frontend and backend checks
 - Open-source contribution docs, issue templates, PR template, labels, and license
+...
 
+---
 ## Tech Stack
 
 Frontend:
@@ -65,22 +94,28 @@ Backend:
 - Pandas
 - OpenPyXL
 - Ruff
+...
 
+---
 ## Screenshots
 
-Current UI screenshots are documented in `docs/FRONTEND.md` and stored under `docs/screenshots/`:
+Current UI screenshots are documented in `docs/FRONTEND.md` and stored under `docs/screenshots/`.
 
-- `docs/screenshots/terminal-dashboard.png`
-- `docs/screenshots/ohlcv-candlestick-signals.png`
-- `docs/screenshots/backtest-history.png`
+### Terminal Dashboard
 
 ![QuantNova terminal dashboard](docs/screenshots/screenshot2_api_connected.png)
 
+### OHLCV Candlestick Chart with Signals
+
 ![QuantNova OHLCV candlestick chart with signals](docs/screenshots/ohlcv-candlestick-signals.png)
+
+### Backtest History
 
 ![QuantNova backtest history](docs/screenshots/backtest-history.png)
 
+...
 
+---
 ## Quick Start
 
 ## Clone the Repository
@@ -186,55 +221,97 @@ CSV/XLSX uploads must include a time column such as `timestamp`, `date`, `dateti
 timestamp,open,high,low,close,volume
 2024-01-01,100,105,98,103,150000
 ```
+...
 
+---
 ## How to Contribute
 
-1. Fork the repository.
-2. Create a branch using the naming convention in `CONTRIBUTING.md`.
-3. Make a small, focused change.
-4. Run the relevant frontend and backend checks.
-5. Open a pull request using the pull request template.
+## Beginner Contribution Flow
+
+```text
+Fork Repository
+       ↓
+Clone Your Fork
+       ↓
+Create New Branch
+       ↓
+Make Changes
+       ↓
+Run Tests & Checks
+       ↓
+Commit Changes
+       ↓
+Push Branch
+       ↓
+Open Pull Request
+       ↓
+Code Review & Merge
+```
 
 Beginner-friendly tasks are listed in `docs/GOOD_FIRST_ISSUES.md`.
 
 ## Contribution Workflow
 
-1. Fork the repository
+### 1. Fork the Repository
 
-2. Clone your fork locally
+Fork the repository to your GitHub account.
+
+### 2. Clone Your Fork Locally
+
 ```bash
 git clone https://github.com/your-username/QuantNova.git
 cd QuantNova
 ```
 
-3.Create a new branch
+### 3. Create a New Branch
+
+```bash
 git checkout -b feature/your-feature-name
+```
 
-4.Make your changes and test them
+### 4. Make Changes and Run Checks
 
-Frontend checks:
+#### Frontend Checks
+
+```bash
 cd frontend
 npm run lint
 npm test
 npm run build
+```
 
-Backend checks:
+#### Backend Checks
+
+```bash
 cd backend
 ruff check .
 pytest
+```
 
-5.Commit your changes
+### 5. Commit Your Changes
+
+```bash
 git add .
 git commit -m "Add meaningful commit message"
+```
 
-6.Push your branch
+### 6. Push Your Branch
+
+```bash
 git push origin feature/your-feature-name
+```
 
-7.Open a Pull Request
-Describe the changes clearly
-Link the related issue using:
+### 7. Open a Pull Request
+
+- Describe the changes clearly
+- Link the related issue using:
+
+```text
 Fixes #issue-number
+```
+...
 
+---
 ## Repository Labels
 
 The starter labels are defined in `.github/labels.yml`:
@@ -252,7 +329,9 @@ bash scripts/setup-labels.sh
 ```
 
 Without GitHub CLI, create the labels manually in the GitHub repository settings using `.github/labels.yml` as the source of truth.
+...
 
+---
 ## Known Limitations as of now
 
 - No live trading or brokerage execution.
@@ -260,6 +339,39 @@ Without GitHub CLI, create the labels manually in the GitHub repository settings
 - No database or persisted backtest history.
 - No order execution, portfolio accounting, or risk engine.
 - Support/resistance zones are planned but not implemented yet.
+...
+
+---
+## Architecture Workflow
+
+```text
+                +----------------------+
+                |     React Frontend   |
+                |  (Vite + TypeScript) |
+                +----------+-----------+
+                           |
+                           | API Requests
+                           v
+                +----------------------+
+                |    FastAPI Backend   |
+                |  Validation & Logic  |
+                +----------+-----------+
+                           |
+        -----------------------------------------
+        |                    |                  |
+        v                    v                  v
++---------------+   +----------------+   +------------------+
+| Binance API   |   | Indicator Calc |   | Backtesting Logic|
+| OHLCV Data    |   | SMA / EMA / RSI|   | Strategy Engine  |
++---------------+   +----------------+   +------------------+
+                           |
+                           v
+                +----------------------+
+                |  Chart Visualization |
+                | Lightweight Charts   |
+                +----------------------+
+```
+
 
 ## Repository Structure
 
@@ -269,7 +381,9 @@ backend/    Python + FastAPI validation, indicators, and backtesting API
 docs/       Contributor docs, good first issues, and screenshots
 .github/    Issue templates, PR template, labels, and CI
 ```
+...
 
+---
 ## Roadmap
 
 - Add more indicators such as ATR and MACD.
@@ -285,7 +399,9 @@ docs/       Contributor docs, good first issues, and screenshots
 <!--## Contact
 
 Maintainer contact channel: add a GitHub Discussions link or community chat link before public program onboarding.-->
+...
 
+---
 ## License
 
 MIT License. See `LICENSE`.
