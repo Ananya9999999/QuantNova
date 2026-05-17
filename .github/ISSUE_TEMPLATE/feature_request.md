@@ -22,6 +22,13 @@ Describe the smallest useful version of the feature.
 
 List files or modules if you know them.
 
+## Estimated Effort
+
+Choose one:
+- 🟢 **Beginner** (~30 mins – 1 hour)
+- 🟡 **Intermediate** (~1 – 3 hours)
+- 🔴 **Advanced** (3+ hours)
+
 ## Additional Context
 
 Add examples, screenshots, or references if useful.

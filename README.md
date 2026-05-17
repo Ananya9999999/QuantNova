@@ -11,6 +11,7 @@
 [![Tests](https://img.shields.io/badge/tests-passing-16a34a)](#testing-and-checks)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+
 ---
 
 ## Table of Contents
@@ -28,6 +29,7 @@
 - [How to Contribute](#how-to-contribute)
 - [Beginner Contribution Flow](#beginner-contribution-flow)
 - [Contribution Workflow](#contribution-workflow)
+- [Common Setup Issues](#Common Setup Issues)
 - [Repository Labels](#repository-labels)
 - [Known Limitations as of now](#known-limitations-as-of-now)
 - [Architecture Workflow](#architecture-workflow)
@@ -40,12 +42,11 @@
 
 [Visit QuantNova](https://www.quantnova.in)
 
-Press Ctrl + K + V to preview readme file on VS Code (windows).
 
 QuantNova is an open-source GUI-based quantitative backtesting foundation for OHLCV market data, technical indicators, simple strategies, and beginner-friendly contribution.
-
-This repository is intentionally scoped as an initial MVP for contributors. Does not include authentication, databases, brokerage integrations, payments, AI agents, or live trading execution.
 ...
+This repository is intentionally scoped as an initial MVP for contributors. It currently does not include authentication, databases, brokerage integrations, payments, AI agents, or live trading execution.
+
 
 ---
 ## Features
@@ -126,61 +127,114 @@ cd QuantNova
 ```
 ## Frontend Setup
 
-Prerequisites:
+### Prerequisites
 
 - Node.js 20 or newer
 - npm 10 or newer
 
-Install dependencies:
+Verify installation:
+
+```bash
+node -v
+npm -v
+```
+
+### Install dependencies
 
 ```bash
 cd frontend
 npm install
 ```
 
-Create a local environment file if you want to point the frontend to the backend:
+### Create environment file (optional)
+
+If you want the frontend to communicate with the backend locally:
 
 ```bash
 cd frontend
 cp .env.example .env
 ```
 
-Start the frontend:
+Windows CMD:
+
+```cmd
+copy .env.example .env
+```
+
+### Start the frontend
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-Vite will print a local URL, usually `http://localhost:5173`.
+Vite will print a local development URL, usually:
+
+```text
+http://localhost:5173
+```
 
 ## Backend Setup
 
-Prerequisites:
+### Prerequisites
 
 - Python 3.11 or newer
 
-macOS/Linux:
+Verify installation:
+
+```bash
+python3 --version
+```
+
+### Create and activate virtual environment
+
+#### macOS/Linux
 
 ```bash
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
-uvicorn app.main:app --reload
 ```
 
-Windows PowerShell:
+#### Windows PowerShell
 
 ```powershell
 cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+### Install backend dependencies
+
+```bash
 pip install -e ".[dev]"
+```
+
+### Start the backend server
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-The backend runs at `http://localhost:8000`. The frontend reads `VITE_API_URL`, which defaults to `http://localhost:8000`.
+The backend runs at:
+
+```text
+http://localhost:8000
+```
+
+### Verify backend health
+
+Open:
+
+```text
+http://localhost:8000/health
+```
+
+The frontend reads `VITE_API_URL`, which defaults to:
+
+```text
+http://localhost:8000
+```
 
 ## API Endpoints
 
@@ -226,6 +280,14 @@ timestamp,open,high,low,close,volume
 ---
 ## How to Contribute
 
+1. Fork the repository.
+2. Clone your fork locally.
+3. Create a new branch using the naming convention in `CONTRIBUTING.md`.
+4. Make a small, focused change.
+5. Run the relevant frontend and backend checks.
+6. Commit using a clear commit message.
+7. Push your branch and open a pull request using the PR template.
+
 ## Beginner Contribution Flow
 
 ```text
@@ -247,8 +309,6 @@ Open Pull Request
        ↓
 Code Review & Merge
 ```
-
-Beginner-friendly tasks are listed in `docs/GOOD_FIRST_ISSUES.md`.
 
 ## Contribution Workflow
 
@@ -310,6 +370,70 @@ git push origin feature/your-feature-name
 Fixes #issue-number
 ```
 ...
+
+---
+## Common Setup Issues
+
+### `code .` command not working in terminal
+
+Install the VS Code shell command:
+
+1. Open VS Code
+2. Press `Cmd + Shift + P`
+3. Search for:
+
+```text
+Shell Command: Install 'code' command in PATH
+```
+
+4. Restart terminal
+
+### Port already in use
+
+If `5173` or `8000` is already occupied, stop the previous running process or change the port configuration.
+
+### Python virtual environment activation fails
+
+Ensure Python 3.11+ is installed and accessible from your terminal.
+
+### `npm install` fails
+
+Try removing `node_modules` and reinstalling:
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Backend dependencies fail to install
+
+Upgrade pip:
+
+```bash
+pip install --upgrade pip
+```
+
+Example branch names:
+
+```text
+docs/readme-improvements
+fix/csv-validation-error
+feature/add-macd-indicator
+```
+
+Example commit messages:
+
+```text
+docs: improve onboarding instructions
+fix: improve csv upload validation
+feat: add macd indicator
+```
+
+Beginner-friendly tasks are listed in:
+
+```text
+docs/GOOD_FIRST_ISSUES.md
+```
 
 ---
 ## Repository Labels
@@ -384,6 +508,26 @@ docs/       Contributor docs, good first issues, and screenshots
 ...
 
 ---
+## Beginner Contributor Notes
+
+If you are new to open source or quantitative finance projects:
+
+- Start with documentation, UI polish, or small validation fixes.
+- Read existing code before making large changes.
+- Keep pull requests small and focused.
+- Ask questions early if something is unclear.
+- Avoid unrelated refactors in beginner pull requests.
+
+Recommended first contribution types:
+
+- Documentation improvements
+- README cleanup
+- Setup troubleshooting
+- Small frontend fixes
+- Accessibility improvements
+- Additional tests
+
+
 ## Roadmap
 
 - Add more indicators such as ATR and MACD.
