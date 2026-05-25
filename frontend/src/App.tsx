@@ -10,6 +10,8 @@ import {
 import { CandleChart, ChartType } from './components/CandleChart';
 import { DataLoader } from './components/DataLoader';
 import sampleCandles from './data/sample-ohlcv.json';
+import { useReplayEngine } from './backtest/useReplayEngine';
+import { ReplayControls } from './components/ReplayControls';
 import { runMovingAverageCrossoverBacktest } from './backtest/movingAverageCrossover';
 import {
   BollingerBandPoint,
@@ -121,10 +123,36 @@ function App() {
     () => (apiBacktest ? fromApiBacktest(apiBacktest) : fallbackBacktest),
     [apiBacktest, fallbackBacktest],
   );
-  const latestIndex = filteredCandles.length - 1;
+  const replay = useReplayEngine(filteredCandles.length);
+  const { currentIndex } = replay;
+
+  const visibleCandles = useMemo(
+    () => filteredCandles.slice(0, currentIndex + 1),
+    [filteredCandles, currentIndex],
+  );
+  const visibleSmaShort = useMemo(
+    () => smaShort.slice(0, currentIndex + 1),
+    [smaShort, currentIndex],
+  );
+  const visibleSmaLong = useMemo(() => smaLong.slice(0, currentIndex + 1), [smaLong, currentIndex]);
+
+  const latestIndex = currentIndex >= 0 ? currentIndex : 0;
   const latestCandle = filteredCandles[latestIndex];
   const latestBand = bands[latestIndex];
   const latestSignal = getLatestSignal(apiBacktest, backtest);
+
+  const visibleSignals = useMemo(() => {
+    const allSignals = apiBacktest?.signals ?? backtest.signals ?? [];
+    if (!latestCandle) return [];
+    const cutoffTime = new Date(latestCandle.timestamp ?? latestCandle.date).getTime();
+    return allSignals.filter((s) => new Date(s.time || s.timestamp || '').getTime() <= cutoffTime);
+  }, [apiBacktest, backtest, latestCandle]);
+
+  const visibleTrades = useMemo(() => {
+    if (!latestCandle) return [];
+    const cutoffTime = new Date(latestCandle.timestamp ?? latestCandle.date).getTime();
+    return backtest.trades.filter((t) => new Date(t.exitDate).getTime() <= cutoffTime);
+  }, [backtest.trades, latestCandle]);
 
   useEffect(() => {
     checkHealth();
@@ -557,10 +585,10 @@ function App() {
               ) : null}
             </div>
             <CandleChart
-              candles={filteredCandles}
-              shortSma={smaShort}
-              longSma={smaLong}
-              signals={apiBacktest?.signals ?? []}
+              candles={visibleCandles}
+              shortSma={visibleSmaShort}
+              longSma={visibleSmaLong}
+              signals={visibleSignals}
               chartType={chartType}
               showSignals={showSignals}
               showSma={showSma && (visibleIndicators.smaShort || visibleIndicators.smaLong)}
@@ -571,6 +599,17 @@ function App() {
           </section>
           <aside className="right-rail">
             {renderControls()}
+            <ReplayControls
+              isPlaying={replay.isPlaying}
+              togglePlay={replay.togglePlay}
+              pause={replay.pause}
+              reset={replay.reset}
+              playbackSpeed={replay.playbackSpeed}
+              setPlaybackSpeed={replay.setPlaybackSpeed}
+              currentIndex={replay.currentIndex}
+              setCurrentIndex={replay.setCurrentIndex}
+              totalLength={filteredCandles.length}
+            />
             <DataLoader
               onUpload={handleUpload}
               onResetSample={loadSampleData}
@@ -807,16 +846,14 @@ function App() {
           <button
             className="ghost-button small-action"
             onClick={exportTradeLogCsv}
-            disabled={backtest.trades.length === 0}
+            disabled={visibleTrades.length === 0}
             title={
-              backtest.trades.length === 0
-                ? 'No trades generated to export.'
-                : 'Export trade log CSV'
+              visibleTrades.length === 0 ? 'No trades generated to export.' : 'Export trade log CSV'
             }
           >
             Export Trade Log CSV
           </button>
-          <TradePreview trades={backtest.trades} />
+          <TradePreview trades={visibleTrades} />
         </section>
       </section>
     );
