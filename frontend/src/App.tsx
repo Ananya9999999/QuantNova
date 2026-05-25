@@ -10,6 +10,8 @@ import {
 import { CandleChart, ChartType } from './components/CandleChart';
 import { DataLoader } from './components/DataLoader';
 import sampleCandles from './data/sample-ohlcv.json';
+import { useReplayEngine } from './backtest/useReplayEngine';
+import { ReplayControls } from './components/ReplayControls';
 import { runMovingAverageCrossoverBacktest } from './backtest/movingAverageCrossover';
 import {
   BollingerBandPoint,
@@ -67,13 +69,18 @@ function App() {
   const [isLoadingSample, setIsLoadingSample] = useState(false);
   const [isRunningBacktest, setIsRunningBacktest] = useState(false);
   const [indicatorMenuOpen, setIndicatorMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [visibleIndicators, setVisibleIndicators] = useState({
-    smaShort: true,
-    smaLong: true,
-    ema: true,
-    rsi: true,
-    bollinger: true,
-  });
+  smaShort: true,
+  smaLong: true,
+  ema: true,
+  rsi: true,
+  macd: false,
+  vwap: false,
+  bollinger: true,
+  atr: false,
+  supertrend: false,
+});
   const [apiIndicators, setApiIndicators] = useState<{
     smaShort: NullableNumber[];
     smaLong: NullableNumber[];
@@ -121,10 +128,36 @@ function App() {
     () => (apiBacktest ? fromApiBacktest(apiBacktest) : fallbackBacktest),
     [apiBacktest, fallbackBacktest],
   );
-  const latestIndex = filteredCandles.length - 1;
+  const replay = useReplayEngine(filteredCandles.length);
+  const { currentIndex } = replay;
+
+  const visibleCandles = useMemo(
+    () => filteredCandles.slice(0, currentIndex + 1),
+    [filteredCandles, currentIndex],
+  );
+  const visibleSmaShort = useMemo(
+    () => smaShort.slice(0, currentIndex + 1),
+    [smaShort, currentIndex],
+  );
+  const visibleSmaLong = useMemo(() => smaLong.slice(0, currentIndex + 1), [smaLong, currentIndex]);
+
+  const latestIndex = currentIndex >= 0 ? currentIndex : 0;
   const latestCandle = filteredCandles[latestIndex];
   const latestBand = bands[latestIndex];
   const latestSignal = getLatestSignal(apiBacktest, backtest);
+
+  const visibleSignals = useMemo(() => {
+    const allSignals = apiBacktest?.signals ?? backtest.signals ?? [];
+    if (!latestCandle) return [];
+    const cutoffTime = new Date(latestCandle.timestamp ?? latestCandle.date).getTime();
+    return allSignals.filter((s) => new Date(s.time || s.timestamp || '').getTime() <= cutoffTime);
+  }, [apiBacktest, backtest, latestCandle]);
+
+  const visibleTrades = useMemo(() => {
+    if (!latestCandle) return [];
+    const cutoffTime = new Date(latestCandle.timestamp ?? latestCandle.date).getTime();
+    return backtest.trades.filter((t) => new Date(t.exitDate).getTime() <= cutoffTime);
+  }, [backtest.trades, latestCandle]);
 
   useEffect(() => {
     checkHealth();
@@ -468,31 +501,329 @@ function App() {
           </div>
         </header>
 
-        {indicatorMenuOpen ? (
-          <section className="terminal-panel indicator-menu">
-            {Object.entries({
-              smaShort: `SMA ${shortWindow}`,
-              smaLong: `SMA ${longWindow}`,
-              ema: 'EMA 10',
-              rsi: 'RSI 14',
-              bollinger: 'Bollinger Bands',
-            }).map(([key, label]) => (
-              <label key={key} className="toggle-row">
-                <input
-                  type="checkbox"
-                  checked={visibleIndicators[key as keyof typeof visibleIndicators]}
-                  onChange={() =>
-                    setVisibleIndicators((current) => ({
-                      ...current,
-                      [key]: !current[key as keyof typeof current],
-                    }))
-                  }
-                />
-                {label}
-              </label>
-            ))}
-          </section>
-        ) : null}
+       {indicatorMenuOpen ? (
+  <section
+    className="terminal-panel indicator-menu"
+    style={{ maxWidth: '100%', overflowX: 'hidden' }}
+  >
+    {/* Header row */}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '14px',
+        flexWrap: 'wrap',
+        gap: '8px',
+      }}
+    >
+      <span
+        style={{
+          fontSize: '11px',
+          fontWeight: 600,
+          color: '#6b7280',
+          letterSpacing: '0.8px',
+          textTransform: 'uppercase',
+        }}
+      >
+        Active Indicators
+      </span>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        <button
+          type="button"
+          onClick={() =>
+            setVisibleIndicators({
+              smaShort: true,
+              smaLong: true,
+              ema: true,
+              rsi: true,
+              macd: true,
+              vwap: true,
+              bollinger: true,
+              atr: true,
+              supertrend: true,
+            })
+          }
+          style={{
+            padding: '3px 10px',
+            borderRadius: '5px',
+            border: '1px solid #374151',
+            background: 'transparent',
+            color: '#6b7280',
+            fontSize: '11px',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = '#4b5563';
+            e.currentTarget.style.color = '#9ca3af';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#374151';
+            e.currentTarget.style.color = '#6b7280';
+          }}
+        >
+          Select all
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            setVisibleIndicators({
+              smaShort: false,
+              smaLong: false,
+              ema: false,
+              rsi: false,
+              macd: false,
+              vwap: false,
+              bollinger: false,
+              atr: false,
+              supertrend: false,
+            })
+          }
+          style={{
+            padding: '3px 10px',
+            borderRadius: '5px',
+            border: '1px solid #374151',
+            background: 'transparent',
+            color: '#6b7280',
+            fontSize: '11px',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = '#4b5563';
+            e.currentTarget.style.color = '#9ca3af';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#374151';
+            e.currentTarget.style.color = '#6b7280';
+          }}
+        >
+          Clear all
+        </button>
+      </div>
+    </div>
+
+    {/* Selected chips */}
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        marginBottom: '14px',
+        minHeight: '36px',
+        minWidth: 0,
+        width: '100%',
+      }}
+    >
+      {Object.entries({
+        smaShort: `SMA ${shortWindow}`,
+        smaLong: `SMA ${longWindow}`,
+        ema: 'EMA 10',
+        rsi: 'RSI 14',
+        macd: 'MACD',
+        vwap: 'VWAP',
+        bollinger: 'Bollinger Bands',
+        atr: 'ATR',
+        supertrend: 'Supertrend',
+      })
+        .filter(([key]) => visibleIndicators[key as keyof typeof visibleIndicators])
+        .map(([key, label]) => (
+          <div
+            key={key}
+            style={{
+              background: '#1e3a8a',
+              border: '1px solid #2563eb',
+              color: '#93c5fd',
+              padding: '5px 12px',
+              borderRadius: '999px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              fontWeight: 500,
+              flexShrink: 0,
+            }}
+          >
+            <span>{label}</span>
+            <button
+              type="button"
+              onClick={() =>
+                setVisibleIndicators((current) => ({
+                  ...current,
+                  [key]: false,
+                }))
+              }
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#60a5fa',
+                cursor: 'pointer',
+                fontSize: '15px',
+                lineHeight: 1,
+                padding: '0 2px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#60a5fa')}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      {!Object.values(visibleIndicators).some(Boolean) && (
+        <span
+          style={{
+            fontSize: '12px',
+            color: '#374151',
+            fontStyle: 'italic',
+            alignSelf: 'center',
+          }}
+        >
+          No indicators selected
+        </span>
+      )}
+    </div>
+
+    {/* Search */}
+    <div style={{ marginBottom: '14px', width: '100%' }}>
+      <input
+        type="text"
+        placeholder="Search indicators..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '9px 12px',
+          borderRadius: '8px',
+          border: '1px solid #374151',
+          background: '#0d1117',
+          color: '#f9fafb',
+          fontSize: '13px',
+          outline: 'none',
+          boxSizing: 'border-box',
+        }}
+        onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
+        onBlur={(e) => (e.currentTarget.style.borderColor = '#374151')}
+      />
+    </div>
+
+    {/* Category label */}
+    <div
+      style={{
+        fontSize: '10px',
+        fontWeight: 600,
+        color: '#4b5563',
+        letterSpacing: '1px',
+        textTransform: 'uppercase',
+        marginBottom: '10px',
+      }}
+    >
+      All Indicators
+    </div>
+
+    {/* Indicator pills */}
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        minWidth: 0,
+        width: '100%',
+      }}
+    >
+      {(() => {
+        const allIndicators: Record<string, { label: string; category: string }> = {
+          smaShort:   { label: `SMA ${shortWindow}`, category: 'Trend' },
+          smaLong:    { label: `SMA ${longWindow}`,  category: 'Trend' },
+          ema:        { label: 'EMA 10',             category: 'Trend' },
+          rsi:        { label: 'RSI 14',             category: 'Momentum' },
+          macd:       { label: 'MACD',               category: 'Momentum' },
+          vwap:       { label: 'VWAP',               category: 'Volume' },
+          bollinger:  { label: 'Bollinger Bands',    category: 'Volatility' },
+          atr:        { label: 'ATR',                category: 'Volatility' },
+          supertrend: { label: 'Supertrend',         category: 'Trend' },
+        };
+
+        const filtered = Object.entries(allIndicators).filter(([, { label }]) =>
+          label.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        if (filtered.length === 0) {
+          return (
+            <span style={{ fontSize: '13px', color: '#4b5563', fontStyle: 'italic' }}>
+              No indicators match "{searchQuery}"
+            </span>
+          );
+        }
+
+        return filtered.map(([key, { label, category }]) => {
+          const isActive = visibleIndicators[key as keyof typeof visibleIndicators];
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() =>
+                setVisibleIndicators((current) => ({
+                  ...current,
+                  [key]: !current[key as keyof typeof current],
+                }))
+              }
+              style={{
+                padding: '7px 14px',
+                borderRadius: '999px',
+                border: isActive ? '1px solid #2563eb' : '1px solid #374151',
+                background: isActive ? '#1e3a8a' : '#1f2937',
+                color: isActive ? '#93c5fd' : '#9ca3af',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease',
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.borderColor = '#4b5563';
+                  e.currentTarget.style.color = '#d1d5db';
+                  e.currentTarget.style.background = '#374151';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.borderColor = '#374151';
+                  e.currentTarget.style.color = '#9ca3af';
+                  e.currentTarget.style.background = '#1f2937';
+                }
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: isActive ? '#60a5fa' : '#374151',
+                  flexShrink: 0,
+                }}
+              />
+              {label}
+              <span
+                style={{
+                  fontSize: '9px',
+                  color: isActive ? '#3b82f6' : '#6b7280',
+                  marginLeft: '2px',
+                }}
+              >
+                {category}
+              </span>
+            </button>
+          );
+        });
+      })()}
+    </div>
+  </section>
+) : null}
 
         {section === 'Terminal' ? renderTerminal() : null}
         {section === 'Strategies' ? renderStrategies() : null}
@@ -510,6 +841,8 @@ function App() {
       </section>
     </main>
   );
+
+        
 
   function renderTerminal() {
     return (
@@ -557,10 +890,10 @@ function App() {
               ) : null}
             </div>
             <CandleChart
-              candles={filteredCandles}
-              shortSma={smaShort}
-              longSma={smaLong}
-              signals={apiBacktest?.signals ?? []}
+              candles={visibleCandles}
+              shortSma={visibleSmaShort}
+              longSma={visibleSmaLong}
+              signals={visibleSignals}
               chartType={chartType}
               showSignals={showSignals}
               showSma={showSma && (visibleIndicators.smaShort || visibleIndicators.smaLong)}
@@ -571,6 +904,17 @@ function App() {
           </section>
           <aside className="right-rail">
             {renderControls()}
+            <ReplayControls
+              isPlaying={replay.isPlaying}
+              togglePlay={replay.togglePlay}
+              pause={replay.pause}
+              reset={replay.reset}
+              playbackSpeed={replay.playbackSpeed}
+              setPlaybackSpeed={replay.setPlaybackSpeed}
+              currentIndex={replay.currentIndex}
+              setCurrentIndex={replay.setCurrentIndex}
+              totalLength={filteredCandles.length}
+            />
             <DataLoader
               onUpload={handleUpload}
               onResetSample={loadSampleData}
@@ -807,16 +1151,14 @@ function App() {
           <button
             className="ghost-button small-action"
             onClick={exportTradeLogCsv}
-            disabled={backtest.trades.length === 0}
+            disabled={visibleTrades.length === 0}
             title={
-              backtest.trades.length === 0
-                ? 'No trades generated to export.'
-                : 'Export trade log CSV'
+              visibleTrades.length === 0 ? 'No trades generated to export.' : 'Export trade log CSV'
             }
           >
             Export Trade Log CSV
           </button>
-          <TradePreview trades={backtest.trades} />
+          <TradePreview trades={visibleTrades} />
         </section>
       </section>
     );
