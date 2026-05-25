@@ -1,6 +1,7 @@
 # QuantNova
 
 [![Live Website](https://img.shields.io/badge/Live%20Website-QuantNova-blue?style=for-the-badge)](https://www.quantnova.in)
+[![Setup Guide](https://img.shields.io/badge/Setup-Guide-blue?style=for-the-badge)](docs/SETUP.md)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
@@ -14,7 +15,30 @@
 
 ---
 
-## Table of Contents
+QuantNova is an open-source GUI-based quantitative backtesting foundation for OHLCV market data, technical indicators, simple strategies, and beginner-friendly contribution.
+
+This repository is intentionally scoped as an initial MVP for contributors. It currently does not include authentication, databases, brokerage integrations, payments, AI agents, or live trading execution.
+
+## Quick Start
+
+> 📖 New to development? Start with the [**Beginner Setup Guide**](docs/SETUP.md) first.
+
+Get the project running locally in a few minutes.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/yashvardhancse/QuantNova.git
+cd QuantNova
+```
+
+### 2. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 - [Live Website](#live-website)
 - [Features](#features)
